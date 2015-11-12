@@ -11,9 +11,15 @@ class MoviesController < ApplicationController
   end
 
   def index
-    puts "params = #{params[:sort]}"
+    puts "params = #{params}"
+    update_ratings
+    @last_ratings = @all_ratings
+
     if params[:sort] 
       @movies = Movie.order("#{params[:sort]} #{params[:order]}").all
+    elsif params[:ratings]
+      @last_ratings = params[:ratings].keys
+      @movies = Movie.where({rating: @last_ratings})
     else
       @movies = Movie.all
     end
@@ -45,6 +51,10 @@ class MoviesController < ApplicationController
     @movie.destroy
     flash[:notice] = "Movie '#{@movie.title}' deleted."
     redirect_to movies_path
+  end
+  
+  def update_ratings
+    @all_ratings = Movie.pluck('DISTINCT rating')
   end
 
 end
