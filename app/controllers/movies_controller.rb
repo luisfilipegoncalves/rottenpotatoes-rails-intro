@@ -11,18 +11,23 @@ class MoviesController < ApplicationController
   end
 
   def index
-    puts "params = #{params}"
     update_ratings
-    @last_ratings = @all_ratings
-
-    if params[:sort] 
-      @movies = Movie.order("#{params[:sort]} #{params[:order]}").all
-    elsif params[:ratings]
+    if params[:ratings]
       @last_ratings = params[:ratings].keys
-      @movies = Movie.where({rating: @last_ratings})
-    else
-      @movies = Movie.all
+      session[:ratings] = @last_ratings
+    elsif !session[:ratings].nil?
+      @last_ratings = session[:ratings]
     end
+        
+    @last_ratings = @all_ratings if @last_ratings.empty?
+
+    sort_filter = session[:sort]
+    if params[:sort] 
+      sort_filter = "#{params[:sort]} #{params[:order]}"
+      session[:sort] = sort_filter
+    end
+  
+    @movies = Movie.order(sort_filter).where({rating: @last_ratings})
   end
 
   def new
