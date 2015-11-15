@@ -11,6 +11,7 @@ class MoviesController < ApplicationController
   end
 
   def index
+    @last_ratings = []
     update_ratings
     if params[:ratings]
       @last_ratings = params[:ratings].keys
